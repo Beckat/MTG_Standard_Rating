@@ -14,6 +14,20 @@ card_holder = []
 
 all_cards_export = pd.read_json("StandardAtomic.json", orient = "index")
 
+for card in data["data"]:
+    test = card
+    test_card = data["data"][card]
+    colors = ""
+    if len(test_card[0]["colors"]) == 0:
+        colors = ""
+    else:
+        for color in test_card[0]["colors"]:
+            colors = colors + color
+    print(colors)
+    colors = ""
+
+ruin_crab = data["data"]["Ruin Crab"]
+
 all_cards_export = all_cards_export.drop("meta")
 all_cards_transpose = all_cards_export.transpose()
 #all_cards_next = pd.DataFrame(all_cards_transpose.data)
@@ -44,7 +58,7 @@ for card in card_holder:
         card_test_df = card
         has_first_row = True
     else:
-        card_test_df.append(card)
+        card_test_df.append(card, ignore_index=True, sort=False)
 
 cards_df = pd.DataFrame(card_holder)
 
