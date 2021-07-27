@@ -18,11 +18,20 @@ for card in data["data"]:
     test = card
     test_card = data["data"][card]
     colors = ""
+    print(test_card[0]["name"])
     if len(test_card[0]["colors"]) == 0:
         colors = ""
     else:
-        for color in test_card[0]["colors"]:
-            colors = colors + color
+        if "W" in str(test_card[0]["colors"]):
+            colors = colors + "W"
+        if "U" in str(test_card[0]["colors"]):
+            colors = colors + "U"
+        if "B" in str(test_card[0]["colors"]):
+            colors = colors + "B"
+        if "R" in str(test_card[0]["colors"]):
+            colors = colors + "R"
+        if "G" in str(test_card[0]["colors"]):
+            colors = colors + "G"
     print(colors)
     colors = ""
 
