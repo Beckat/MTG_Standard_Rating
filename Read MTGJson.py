@@ -3,6 +3,20 @@ import pandas as pd
 import sqlalchemy as sqlal
 from sqlalchemy.orm import sessionmaker
 import Env
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date
+
+Base = declarative_base()
+
+
+class Card(Base):
+    __tablename__ = 'MTG Cards'
+    name = Column(String, primary_key=True)
+    colors = Column(String)
+
+    def __repr__(self):
+        return "<Book(name='{}', colors='{}'>" \
+            .format(self.name, self.colors)
 
 
 # Opening JSON file
@@ -40,13 +54,14 @@ for card in data["data"]:
     colors = ""
 
 ruin_crab = data["data"]["Ruin Crab"][0]["name"]
-print(ruin_crab["name"])
+
+card = Card(name=ruin_crab, colors="U")
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
 Session = sessionmaker(bind=engine)
 s = Session()
-#s.add(name=ruin_crab)
+s.add(card)
 s.commit()
 s.close()
 
