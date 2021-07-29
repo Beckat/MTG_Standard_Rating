@@ -1,5 +1,9 @@
 import json
 import pandas as pd
+import sqlalchemy as sqlal
+from sqlalchemy.orm import sessionmaker
+import Env
+
 
 # Opening JSON file
 f = open('StandardAtomic.json', encoding='utf-8-sig')
@@ -35,86 +39,14 @@ for card in data["data"]:
     print(colors)
     colors = ""
 
-ruin_crab = data["data"]["Ruin Crab"]
+ruin_crab = data["data"]["Ruin Crab"][0]["name"]
+print(ruin_crab["name"])
 
-all_cards_export = all_cards_export.drop("meta")
-all_cards_transpose = all_cards_export.transpose()
-#all_cards_next = pd.DataFrame(all_cards_transpose.data)
+Environment = Env.Environment()
+engine = Environment.get_database_engine()
+Session = sessionmaker(bind=engine)
+s = Session()
+#s.add(name=ruin_crab)
+s.commit()
+s.close()
 
-all_cards_export.head()
-
-for card in all_cards_export.items():
-    if "colorIdentity" in str(card[1]) and not card[1] is None:
-        test = card[1]
-        card_holder.append(card[1])
-
-card_holder_df = pd.DataFrame(card_holder)
-card_holder = []
-
-#i = card_holder_df.index.get_loc("date")
-#card_holder_df.drop(index="date")
-#card_holder_df.drop("")
-
-for i in range(len(card_holder_df)):
-    card_holder.append(pd.io.json.json_normalize(card_holder_df.data[i]))
-#for row in pd.io.json.json_normalize(card_holder_df.data[0]):
-#    card_holder.append(row)
-test = pd.io.json.json_normalize(card_holder_df.data[0])
-
-has_first_row = False
-for card in card_holder:
-    if not has_first_row:
-        card_test_df = card
-        has_first_row = True
-    else:
-        card_test_df.append(card, ignore_index=True, sort=False)
-
-cards_df = pd.DataFrame(card_holder)
-
-print("Hold for debug")
-
-print("Middle")
-'''
-for card in all_cards_transpose:
-    if not card == "data":
-        data, card = card.split('[')
-    print(card)
-
-split_cards = pd.DataFrame(all_cards_transpose.row.str.split(',', 1).tolist(),
-                           columns=['title', 'card'])
-
-all_cards_next_2 = pd.DataFrame(all_cards_next.items())
-print(all_cards_next_2.head())
-print("HOLD")
-print(all_cards_next_2.columns)
-all_cards_next_3 = all_cards_next_2[1]
-
-all_cards_next_4 = pd.DataFrame(all_cards_next_2[0].tolist()).set_index(all_cards_next_2[1])
-
-card_json = all_cards_next.items()
-
-
-print("Card Json")
-print(card_json)
-print("Card Json")
-
-all_cards = json.load(card_json)
-
-print(all_cards_next_2.head())
-print("HOLD")
-print(all_cards_next_2.columns)
-print(all_cards_next_3.head())
-print("HOLD")
-print(all_cards_next_3.columns)
-all_cards_next_2 = all_cards_next_2.data.apply(lambda x: pd.read_json(json.dumps(x), orient = "index"))
-all_cards = all_cards_export.data.apply(lambda x: pd.read_json(json.dumps(x), orient = "name"))
-
-# Iterating through the json
-# list
-for card in cards.items():
-    print(card)
-    print(card["manacost"])
-
-'''
-# Closing file
-f.close()
