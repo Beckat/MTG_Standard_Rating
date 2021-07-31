@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import Env
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy.exc import IntegrityError
 
 Base = declarative_base()
 
@@ -13,10 +14,11 @@ class Card(Base):
     __tablename__ = 'MTG Cards'
     name = Column(String, primary_key=True)
     colors = Column(String)
+    faceName = Column(String)
 
     def __repr__(self):
-        return "<Book(name='{}', colors='{}'>" \
-            .format(self.name, self.colors)
+        return "<Book(name='{}', colors='{}', faceName='{}'>" \
+            .format(self.name, self.colors, self.faceName)
 
 
 # Opening JSON file
@@ -36,7 +38,7 @@ for card in data["data"]:
     test = card
     test_card = data["data"][card]
     colors = ""
-    print(test_card[0]["name"])
+    #print(test_card[0]["name"])
     if len(test_card[0]["colors"]) == 0:
         colors = ""
     else:
@@ -50,18 +52,21 @@ for card in data["data"]:
             colors = colors + "R"
         if "G" in str(test_card[0]["colors"]):
             colors = colors + "G"
-    print(colors)
+    #print(colors)
     colors = ""
 
 ruin_crab = data["data"]["Ruin Crab"][0]["name"]
 
-card = Card(name=ruin_crab, colors="U")
+card = Card(name=ruin_crab, colors="U", faceName=None)
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
 Session = sessionmaker(bind=engine)
 s = Session()
 s.add(card)
-s.commit()
+try:
+    s.commit()
+except IntegrityError:
+    s.rollback()
 s.close()
 
