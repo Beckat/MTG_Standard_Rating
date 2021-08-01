@@ -15,10 +15,12 @@ class Card(Base):
     name = Column(String, primary_key=True)
     colors = Column(String)
     faceName = Column(String)
+    manaCost = Column(String)
 
     def __repr__(self):
-        return "<Book(name='{}', colors='{}', faceName='{}'>" \
-            .format(self.name, self.colors, self.faceName)
+        return """""""<Book(name='{}', colors='{}', faceName='{}'," \
+               "manaCost='{}'>""" \
+            .format(self.name, self.colors, self.faceName, self.manaCost)
 
 
 # Opening JSON file
@@ -55,9 +57,9 @@ for card in data["data"]:
     #print(colors)
     colors = ""
 
-ruin_crab = data["data"]["Ruin Crab"][0]["name"]
+ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
 
-card = Card(name=ruin_crab, colors="U", faceName=None)
+card = Card(name=ruin_crab, colors=data["data"]["Angel of Destiny"][0]["colors"], faceName=None,manaCost=data["data"]["Angel of Destiny"][0]["manaCost"])
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
