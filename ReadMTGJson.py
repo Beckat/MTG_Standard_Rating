@@ -9,11 +9,12 @@ from sqlalchemy.exc import IntegrityError
 
 Base = declarative_base()
 
+
 class ReadCards:
     def __init__(self):
-        card = None
+        self.card = None
 
-    def find_mana_cost_symbol(symbol, mana_costs):
+    def find_mana_cost_symbol(self, symbol, mana_costs):
         cost = ""
         if symbol in mana_costs:
             for x in mana_costs:
@@ -34,6 +35,8 @@ class Card(Base):
                "manaCost='{}'>""" \
             .format(self.name, self.colors, self.faceName, self.manaCost)
 
+
+card_reader = ReadCards()
 
 # Opening JSON file
 f = open('StandardAtomic.json', encoding='utf-8-sig')
@@ -79,12 +82,12 @@ else:
     if mana_costs[0].isnumeric():
         mana_cost = mana_cost + mana_costs[0]
 
-    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("W", mana_costs)
-    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("U", mana_costs)
-    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("B", mana_costs)
-    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("R", mana_costs)
-    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("G", mana_costs)
-    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("C", mana_costs)
+    mana_cost = mana_cost + card_reader.find_mana_cost_symbol("W", mana_costs)
+    mana_cost = mana_cost + card_reader.find_mana_cost_symbol("U", mana_costs)
+    mana_cost = mana_cost + card_reader.find_mana_cost_symbol("B", mana_costs)
+    mana_cost = mana_cost + card_reader.find_mana_cost_symbol("R", mana_costs)
+    mana_cost = mana_cost + card_reader.find_mana_cost_symbol("G", mana_costs)
+    mana_cost = mana_cost + card_reader.find_mana_cost_symbol("C", mana_costs)
 
 ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
 
