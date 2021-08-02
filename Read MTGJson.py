@@ -9,6 +9,18 @@ from sqlalchemy.exc import IntegrityError
 
 Base = declarative_base()
 
+class ReadCards:
+    def __init__(self):
+        card = None
+
+    def find_mana_cost_symbol(symbol, mana_costs):
+        cost = ""
+        if symbol in mana_costs:
+            for x in mana_costs:
+                if x == symbol:
+                    cost = cost + symbol
+        return cost
+
 
 class Card(Base):
     __tablename__ = 'MTG Cards'
@@ -18,7 +30,7 @@ class Card(Base):
     manaCost = Column(String)
 
     def __repr__(self):
-        return """""""<Book(name='{}', colors='{}', faceName='{}'," \
+        return """""""<Card(name='{}', colors='{}', faceName='{}'," \
                "manaCost='{}'>""" \
             .format(self.name, self.colors, self.faceName, self.manaCost)
 
@@ -33,6 +45,7 @@ cards = data["data"]
 card_test_df = pd.DataFrame
 
 card_holder = []
+mana_cost = ""
 
 all_cards_export = pd.read_json("StandardAtomic.json", orient = "index")
 
@@ -57,9 +70,25 @@ for card in data["data"]:
     #print(colors)
     colors = ""
 
+if len(data["data"]["Angel of Destiny"][0]["manaCost"]) == 0:
+    mana_cost = ""
+else:
+    mana_cost_holder = str(data["data"]["Angel of Destiny"][0]["manaCost"])
+    mana_cost_holder = mana_cost_holder.replace("{", "")
+    mana_costs = mana_cost_holder.split("}")
+    if mana_costs[0].isnumeric():
+        mana_cost = mana_cost + mana_costs[0]
+
+    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("W", mana_costs)
+    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("U", mana_costs)
+    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("B", mana_costs)
+    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("R", mana_costs)
+    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("G", mana_costs)
+    mana_cost = mana_cost + ReadCards.find_mana_cost_symbol("C", mana_costs)
+
 ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
 
-card = Card(name=ruin_crab, colors=data["data"]["Angel of Destiny"][0]["colors"], faceName=None,manaCost=data["data"]["Angel of Destiny"][0]["manaCost"])
+card = Card(name=ruin_crab, colors=data["data"]["Angel of Destiny"][0]["colors"], faceName=None,manaCost=mana_cost)
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
@@ -71,4 +100,5 @@ try:
 except IntegrityError:
     s.rollback()
 s.close()
+
 
