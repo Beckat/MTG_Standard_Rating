@@ -18,14 +18,41 @@ class ReadCards:
 class Card(Base):
     __tablename__ = 'MTG Cards'
     name = Column(String, primary_key=True)
-    colors = Column(String)
-    faceName = Column(String)
+    type = Column(String)
+    toughness = Column(sqlal.FLOAT)
+    text = Column(String)
+    supertypes = Column(String)
+    subtypes = Column(String)
+    side = Column(String)
+    printings = Column(String)
+    power = Column(sqlal.FLOAT)
     manaCost = Column(String)
+    loyalty = Column(String)
+    life = Column(sqlal.FLOAT)
+    legalities = Column(String)
+    keywords = Column(String)
+    identifiers = Column(String)
+    hasAlternativeDeckLimit = Column(String)
+    faceName = Column(String)
+    faceConvertedManaCost = Column(String)
+    edhrecRank = Column(String)
+    convertedManaCost = Column(sqlal.FLOAT)
+    colors = Column(String)
+    colorIndicator = Column(String)
+    colorIdentity = Column(String)
+    asciiName = Column(String)
+    types = Column(String)
 
     def __repr__(self):
         return """""""<Card(name='{}', colors='{}', faceName='{}'," \
                "manaCost='{}'>""" \
-            .format(self.name, self.colors, self.faceName, self.manaCost)
+            .format(self.name, self.type, self.toughness,
+                    self.text, self.subtypes, self.subtypes,
+                    self.side, self.printings, self.power, self.manaCost,
+                    self.loyalty, self.life, self.legalities, self.keywords,
+                    self.identifiers, self.hasAlternativeDeckLimit, self.faceName,
+                    self.faceConvertedManaCost, self.edhrecRank, self.convertedManaCost,
+                    self.colors, self.colorIdentity, self.asciiName, self.types)
 
 
 card_reader = ReadCards()
@@ -46,7 +73,7 @@ all_cards_export = pd.read_json("StandardAtomic.json", orient = "index")
 
 ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
 
-card = Card(name=ruin_crab, colors=data["data"]["Angel of Destiny"][0]["colors"], faceName=None,manaCost=data["data"]["Angel of Destiny"][0]["manaCost"])
+card = Card(name=ruin_crab, toughness=data["data"]["Angel of Destiny"][0]["toughness"], colors=data["data"]["Angel of Destiny"][0]["colors"], faceName=None,manaCost=data["data"]["Angel of Destiny"][0]["manaCost"], type=data["data"]["Angel of Destiny"][0]["type"], types=data["data"]["Angel of Destiny"][0]["types"])
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
