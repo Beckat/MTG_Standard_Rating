@@ -18,6 +18,7 @@ class ReadCards:
 class Card(Base):
     __tablename__ = 'MTG Cards'
     name = Column(String, primary_key=True)
+    faceName = Column(String, primary_key=True)
     type = Column(String)
     toughness = Column(sqlal.FLOAT)
     text = Column(String)
@@ -33,7 +34,6 @@ class Card(Base):
     keywords = Column(String)
     identifiers = Column(String)
     hasAlternativeDeckLimit = Column(String)
-    faceName = Column(String)
     faceConvertedManaCost = Column(String)
     edhrecRank = Column(String)
     convertedManaCost = Column(sqlal.FLOAT)
@@ -72,8 +72,51 @@ mana_cost = ""
 all_cards_export = pd.read_json("StandardAtomic.json", orient = "index")
 
 ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
+card_face_name = None
 
-card = Card(name=ruin_crab, toughness=data["data"]["Angel of Destiny"][0]["toughness"], colors=data["data"]["Angel of Destiny"][0]["colors"], faceName=None,manaCost=data["data"]["Angel of Destiny"][0]["manaCost"], type=data["data"]["Angel of Destiny"][0]["type"], types=data["data"]["Angel of Destiny"][0]["types"])
+for card in data["data"]:
+    card_name = data["data"][card][0]["name"]
+    if "faceName" in data["data"][card][0]:
+        card_face_name = data["data"][card][0]["faceName"]
+    else:
+        card_face_name = data["data"][card][0]["name"]
+    card_type = data["data"][card][0]["type"]
+    if "toughness" in data["data"][card][0]:
+        card_toughness = data["data"][card][0]["toughness"]
+    else:
+        card_toughness = None
+    if "text" in data["data"][card][0]:
+        card_text = data["data"][card][0]["text"]
+    else:
+        card_text = None
+    card_supertypes = data["data"][card][0]["supertypes"]
+    card_subtypes = data["data"][card][0]["subtypes"]
+    if "side" in data["data"][card][0]:
+        card_side = data["data"][card][0]["side"]
+    else:
+        card_side = None
+    if "printings" in data["data"][card][0]:
+        card_printings = data["data"][card][0]["printings"]
+    else:
+        card_printings = None
+    if "power" in data["data"][card][0]:
+        card_power = data["data"][card][0]["power"]
+    else:
+        card_power = None
+    if "manaCost" in data["data"][card][0]:
+        card_mana_cost = data["data"][card][0]["manaCost"]
+    else:
+        card_mana_cost = None
+    if "loyalty" in data["data"][card][0]:
+        card_loyalty = data["data"][card][0]["loyalty"]
+    else:
+        card_loyalty = None
+    if "life" in data["data"][card][0]:
+        card_life = data["data"][card][0]["life"]
+    else:
+        card_life = None
+
+card = Card(name=ruin_crab, faceName=card_face_name, toughness=data["data"]["Angel of Destiny"][0]["toughness"], colors=data["data"]["Angel of Destiny"][0]["colors"], type=data["data"]["Angel of Destiny"][0]["type"], types=data["data"]["Angel of Destiny"][0]["types"])
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
