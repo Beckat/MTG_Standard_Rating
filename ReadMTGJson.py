@@ -58,21 +58,26 @@ class Card(Base):
 card_reader = ReadCards()
 
 # Opening JSON file
-f = open('StandardAtomic.json', encoding='utf-8-sig')
+f = open('AtomicCards.json', encoding='utf-8-sig')
 
 # returns JSON object as
 # a dictionary
 data = json.load(f)
-cards = data["data"]
-card_test_df = pd.DataFrame
+#cards = data["data"]
+#card_test_df = pd.DataFrame
 
-card_holder = []
-mana_cost = ""
+#card_holder = []
+#mana_cost = ""
 
-all_cards_export = pd.read_json("StandardAtomic.json", orient = "index")
+#all_cards_export = pd.read_json("StandardAtomic.json", orient = "index")
 
-ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
-card_face_name = None
+#ruin_crab = data["data"]["Angel of Destiny"][0]["name"]
+#card_face_name = None
+
+Environment = Env.Environment()
+engine = Environment.get_database_engine()
+Session = sessionmaker(bind=engine)
+s = Session()
 
 for card in data["data"]:
     card_name = data["data"][card][0]["name"]
@@ -80,9 +85,14 @@ for card in data["data"]:
         card_face_name = data["data"][card][0]["faceName"]
     else:
         card_face_name = data["data"][card][0]["name"]
+
     card_type = data["data"][card][0]["type"]
+
     if "toughness" in data["data"][card][0]:
-        card_toughness = data["data"][card][0]["toughness"]
+        if data["data"][card][0]["toughness"].isnumeric():
+            card_toughness = data["data"][card][0]["toughness"]
+        else:
+            card_toughness = 0.0
     else:
         card_toughness = None
     if "text" in data["data"][card][0]:
@@ -99,10 +109,15 @@ for card in data["data"]:
         card_printings = data["data"][card][0]["printings"]
     else:
         card_printings = None
+
     if "power" in data["data"][card][0]:
-        card_power = data["data"][card][0]["power"]
+        if data["data"][card][0]["power"].isnumeric():
+            card_power = data["data"][card][0]["power"]
+        else:
+            card_power = 0.0
     else:
         card_power = None
+
     if "manaCost" in data["data"][card][0]:
         card_mana_cost = data["data"][card][0]["manaCost"]
     else:
@@ -115,18 +130,70 @@ for card in data["data"]:
         card_life = data["data"][card][0]["life"]
     else:
         card_life = None
+    if "legalities" in data["data"][card][0]:
+        card_legalities = str(data["data"][card][0]["legalities"])
+    else:
+        card_legalities = None
+    if "keywords" in data["data"][card][0]:
+        card_keywords = data["data"][card][0]["keywords"]
+    else:
+        card_keywords = None
+    if "identifiers" in data["data"][card][0]:
+        card_identifiers = str(data["data"][card][0]["identifiers"])
+    else:
+        card_identifiers = None
+    if "hasAlternativeDeckLimit" in data["data"][card][0]:
+        card_alternative_deck_limit = data["data"][card][0]["hasAlternativeDeckLimit"]
+    else:
+        card_alternative_deck_limit = None
+    if "faceConvertedManaCost" in data["data"][card][0]:
+        card_face_converted_mana_cost= data["data"][card][0]["faceConvertedManaCost"]
+    else:
+        card_face_converted_mana_cost = None
 
-card = Card(name=ruin_crab, faceName=card_face_name, toughness=data["data"]["Angel of Destiny"][0]["toughness"], colors=data["data"]["Angel of Destiny"][0]["colors"], type=data["data"]["Angel of Destiny"][0]["type"], types=data["data"]["Angel of Destiny"][0]["types"])
+    if "edhrecRank" in data["data"][card][0]:
+        card_ehdrec_rank = data["data"][card][0]["edhrecRank"]
+    else:
+        card_ehdrec_rank = None
+    if "convertedManaCost" in data["data"][card][0]:
+        card_converted_mana_cost = data["data"][card][0]["convertedManaCost"]
+    else:
+        card_converted_mana_cost = None
+    if "colors" in data["data"][card][0]:
+        card_colors = data["data"][card][0]["colors"]
+    else:
+        card_colors = None
+    if "colorIndicator" in data["data"][card][0]:
+        card_color_indicator = data["data"][card][0]["colorIndicator"]
+    else:
+        card_color_indicator = None
+    if "colorIdentity" in data["data"][card][0]:
+        card_color_identity = data["data"][card][0]["colorIdentity"]
+    else:
+        card_color_identity = None
+    if "asciiName" in data["data"][card][0]:
+        card_ascii_name = data["data"][card][0]["asciiName"]
+    else:
+        card_ascii_name = None
+    if "types" in data["data"][card][0]:
+        card_types = data["data"][card][0]["types"]
+    else:
+        card_types = None
 
-Environment = Env.Environment()
-engine = Environment.get_database_engine()
-Session = sessionmaker(bind=engine)
-s = Session()
-s.add(card)
-try:
-    s.commit()
-except IntegrityError:
-    s.rollback()
+    add_card = Card(name=card_name, faceName=card_face_name, type=card_type, toughness=card_toughness,
+                    text=card_text, supertypes=card_supertypes, subtypes=card_subtypes,
+                    side=card_side, printings=card_printings, power=card_power, manaCost=card_mana_cost,
+                    loyalty=card_loyalty, life=card_life, legalities=card_legalities, keywords=card_keywords,
+                    identifiers=card_identifiers, hasAlternativeDeckLimit=card_alternative_deck_limit,
+                    faceConvertedManaCost=card_face_converted_mana_cost, edhrecRank=card_ehdrec_rank,
+                    convertedManaCost=card_converted_mana_cost, colors=card_colors, colorIndicator=card_color_indicator,
+                    colorIdentity=card_color_identity, asciiName=card_ascii_name, types=card_types)
+    s.add(add_card)
+    try:
+        s.commit()
+    except IntegrityError:
+        s.rollback()
+
 s.close()
 
 
