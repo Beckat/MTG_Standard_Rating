@@ -19,38 +19,64 @@ Base = declarative_base()
 
 class Draftsim_Card(Base):
     __tablename__ = 'Draftsim_Rankings'
+    rank = Column(Integer, primary_key=True)
     name = Column(String, primary_key=True)
-    faceName = Column(String, primary_key=True)
-    type = Column(String)
+    set_name = Column(String, primary_key=True)
 
-class draftSimScraper:
-    def __init__(self, input_web_address, input_set, input_database_session, input_draftsim_card):
-        self.web_address = input_web_address
-        self.set_name = input_web_address
-        self.database_session = input_database_session
-        self.draftsim_card = input_draftsim_card
+class Draftsim_Scraper:
+    def __init__(self):
+        self.card_rank_dic = {}
 
-driver = webdriver.Chrome()  # Optional argument, if not specified will search path.
+    def gather_dic_from_site(self, input_web_address):
+        driver = webdriver.Chrome()
+        try:
+            driver.get(input_web_address)
+            card_ranks_page = driver.find_elements(By.ID, 'draft_img')
+            card_ranks_text = card_ranks_page[0].text
+            card_ranks_text = card_ranks_text.replace('Tier 1: Incredible Bombs', '')
+            card_ranks_text = card_ranks_text.replace('Tier 2: Great First Picks', '')
+            card_ranks_text = card_ranks_text.replace('Tier 3: Above Average Cards', '')
+            card_ranks_text = card_ranks_text.replace('Tier 4: Solid Playables', '')
+            card_ranks_text = card_ranks_text.replace('Tier 5: Sometimes Playable', '')
+            card_ranks_text = card_ranks_text.replace('Tier 6: Rarely Playable', '')
+            card_ranks_text = card_ranks_text.replace('Tier 7: Basically Unplayable', '')
+            card_ranks_text = card_ranks_text.replace(
+                'Wizards of the Coast, Magic: The Gathering, and their logos are trademarks of Wizards of the Coast LLC. © 2021 Wizards. All rights reserved. The copyright for Magic: the Gathering and all associated card names and card images is held by Wizards of the Coast. Draftsim.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. This site is © Draftsim.com. Our Privacy Policy.',
+                '')
+            card_ranks_split = card_ranks_text.split('\n\n\n')
+            card_rank_dic = {}
 
-driver.get('https://draftsim.com/STX-pick-order.php');
+            for x in range(len(card_ranks_split)):
+                card_ranks_split[x] = card_ranks_split[x].replace('\n', '')
+                card_rank_number_and_name = card_ranks_split[x].split('. ')
+                self.card_rank_dic[card_rank_number_and_name[0].strip()] = card_rank_number_and_name[1].strip()
+        finally:
+            driver.quit()
 
-card_ranks_page = driver.find_elements(By.ID, 'draft_img')
-card_ranks_text = card_ranks_page[0].text
-card_ranks_text = card_ranks_text.replace('Tier 1: Incredible Bombs', '')
-card_ranks_text = card_ranks_text.replace('Tier 2: Great First Picks', '')
-card_ranks_text = card_ranks_text.replace('Tier 3: Above Average Cards', '')
-card_ranks_text = card_ranks_text.replace('Tier 4: Solid Playables', '')
-card_ranks_text = card_ranks_text.replace('Tier 5: Sometimes Playable', '')
-card_ranks_text = card_ranks_text.replace('Tier 6: Rarely Playable', '')
-card_ranks_text = card_ranks_text.replace('Tier 7: Basically Unplayable', '')
-card_ranks_text = card_ranks_text.replace('Wizards of the Coast, Magic: The Gathering, and their logos are trademarks of Wizards of the Coast LLC. © 2021 Wizards. All rights reserved. The copyright for Magic: the Gathering and all associated card names and card images is held by Wizards of the Coast. Draftsim.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. This site is © Draftsim.com. Our Privacy Policy.', '')
-card_ranks_split = card_ranks_text.split('\n\n\n')
-card_rank_dic = {}
+    def add_to_database(self, input_database_session, card_rank, card_name, set_name):
+        draftsim_database_card = Draftsim_Card(rank=card_rank, name=card_name, set_name=set_name)
+        input_database_session.add(draftsim_database_card)
+        try:
+            input_database_session.commit()
+        except IntegrityError:
+            input_database_session.rollback()
 
-for x in range(len(card_ranks_split)):
-    card_ranks_split[x] = card_ranks_split[x].replace('\n', '')
-    card_rank_number_and_name = card_ranks_split[x].split('. ')
-    card_rank_dic[card_rank_number_and_name[0].strip()] = card_rank_number_and_name[1].strip()
+    def get_card_dic(self):
+        return self.card_rank_dic
 
-driver.quit()
 
+Environment = Env.Environment()
+engine = Environment.get_database_engine()
+Session = sessionmaker(bind=engine)
+database_session = Session()
+
+draftsim = Draftsim_Scraper()
+draftsim.gather_dic_from_site("https://draftsim.com/STX-pick-order.php")
+
+cards = draftsim.get_card_dic()
+
+for card in cards:
+    name = cards.get(card)
+    draftsim.add_to_database(database_session, card, name, "Strixhaven")
+
+database_session.close()
