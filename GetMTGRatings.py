@@ -18,10 +18,10 @@ from selenium import webdriver
 Base = declarative_base()
 
 class Draftsim_Card(Base):
-    __tablename__ = 'Draftsim_Rankings'
-    rank = Column(Integer, primary_key=True)
-    name = Column(String, primary_key=True)
-    set_name = Column(String, primary_key=True)
+    __tablename__ = 'DraftsimRankings'
+    Rank = Column(Integer, primary_key=True)
+    Name = Column(String, primary_key=True)
+    Set = Column(String, primary_key=True)
 
 class Draftsim_Scraper:
     def __init__(self):
@@ -54,7 +54,7 @@ class Draftsim_Scraper:
             driver.quit()
 
     def add_to_database(self, input_database_session, card_rank, card_name, set_name):
-        draftsim_database_card = Draftsim_Card(rank=card_rank, name=card_name, set_name=set_name)
+        draftsim_database_card = Draftsim_Card(Rank=card_rank, Name=card_name, Set=set_name)
         input_database_session.add(draftsim_database_card)
         try:
             input_database_session.commit()

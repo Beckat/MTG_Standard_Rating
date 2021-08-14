@@ -16,7 +16,7 @@ class ReadCards:
 
 
 class Card(Base):
-    __tablename__ = 'MTG Cards'
+    __tablename__ = 'MTG_Cards'
     name = Column(String, primary_key=True)
     faceName = Column(String, primary_key=True)
     type = Column(String)
