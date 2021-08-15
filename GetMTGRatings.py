@@ -71,12 +71,13 @@ Session = sessionmaker(bind=engine)
 database_session = Session()
 
 draftsim = Draftsim_Scraper()
-draftsim.gather_dic_from_site("https://draftsim.com/STX-pick-order.php")
+#draftsim.gather_dic_from_site("https://draftsim.com/STX-pick-order.php")
+draftsim.gather_dic_from_site("https://draftsim.com/KHM-pick-order.php")
 
 cards = draftsim.get_card_dic()
 
 for card in cards:
     name = cards.get(card)
-    draftsim.add_to_database(database_session, card, name, "Strixhaven")
+    draftsim.add_to_database(database_session, card, name, "Kaldheim")
 
 database_session.close()
