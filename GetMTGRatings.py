@@ -31,8 +31,11 @@ class Draftsim_Scraper:
         driver = webdriver.Chrome()
         try:
             driver.get(input_web_address)
+            # All the card rankings are in the draft_img id
             card_ranks_page = driver.find_elements(By.ID, 'draft_img')
+            # Pull the text for all the card rankings
             card_ranks_text = card_ranks_page[0].text
+            # Replace the headers putting each card in a tier
             card_ranks_text = card_ranks_text.replace('Tier 1: Incredible Bombs', '')
             card_ranks_text = card_ranks_text.replace('Tier 2: Great First Picks', '')
             card_ranks_text = card_ranks_text.replace('Tier 3: Above Average Cards', '')
@@ -40,12 +43,16 @@ class Draftsim_Scraper:
             card_ranks_text = card_ranks_text.replace('Tier 5: Sometimes Playable', '')
             card_ranks_text = card_ranks_text.replace('Tier 6: Rarely Playable', '')
             card_ranks_text = card_ranks_text.replace('Tier 7: Basically Unplayable', '')
+            # Remove the disclaimer text at the bottom
             card_ranks_text = card_ranks_text.replace(
                 'Wizards of the Coast, Magic: The Gathering, and their logos are trademarks of Wizards of the Coast LLC. © 2021 Wizards. All rights reserved. The copyright for Magic: the Gathering and all associated card names and card images is held by Wizards of the Coast. Draftsim.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. This site is © Draftsim.com. Our Privacy Policy.',
                 '')
+            # Each card is split by three new lines
             card_ranks_split = card_ranks_text.split('\n\n\n')
             card_rank_dic = {}
 
+            # Remove any extra new lines
+            # Split by the '.' such as 1. Card_Name
             for x in range(len(card_ranks_split)):
                 card_ranks_split[x] = card_ranks_split[x].replace('\n', '')
                 card_rank_number_and_name = card_ranks_split[x].split('. ')
