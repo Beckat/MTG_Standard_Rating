@@ -61,10 +61,12 @@ class Draftsim_Scraper:
             driver.quit()
 
     def add_to_database(self, input_database_session, card_rank, card_name, set_name):
+        # Creates the object to be added to the database
         draftsim_database_card = Draftsim_Card(Rank=card_rank, Name=card_name, Set=set_name)
         input_database_session.add(draftsim_database_card)
         try:
             input_database_session.commit()
+        # Error if the insert would cause an integrety error in the database such as duplicate primary key value
         except IntegrityError:
             input_database_session.rollback()
 
@@ -78,6 +80,7 @@ Session = sessionmaker(bind=engine)
 database_session = Session()
 
 draftsim = Draftsim_Scraper()
+# Get the different pages for sets
 #draftsim.gather_dic_from_site("https://draftsim.com/STX-pick-order.php")
 draftsim.gather_dic_from_site("https://draftsim.com/KHM-pick-order.php")
 
