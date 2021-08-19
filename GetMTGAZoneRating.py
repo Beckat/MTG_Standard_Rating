@@ -21,3 +21,9 @@ from selenium import webdriver
 # https://mtgazone.com/strixhaven-school-of-mages-stx-limited-tier-list/
 
 
+Base = declarative_base()
+
+Environment = Env.Environment()
+engine = Environment.get_database_engine()
+Session = sessionmaker(bind=engine)
+database_session = Session()
