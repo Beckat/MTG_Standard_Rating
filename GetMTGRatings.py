@@ -10,7 +10,7 @@ import sqlalchemy as sqlal
 from sqlalchemy.orm import sessionmaker
 import Env
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, REAL
 from sqlalchemy.exc import IntegrityError
 import time
 from selenium import webdriver
@@ -22,6 +22,7 @@ class Draftsim_Card(Base):
     Rank = Column(Integer, primary_key=True)
     Name = Column(String, primary_key=True)
     Set = Column(String, primary_key=True)
+    WeighedRating = Column(REAL)
 
 class Draftsim_Scraper:
     def __init__(self):
@@ -60,9 +61,9 @@ class Draftsim_Scraper:
         finally:
             driver.quit()
 
-    def add_to_database(self, input_database_session, card_rank, card_name, set_name):
+    def add_to_database(self, input_database_session, card_rank, card_name, set_name, weighed_rating):
         # Creates the object to be added to the database
-        draftsim_database_card = Draftsim_Card(Rank=card_rank, Name=card_name, Set=set_name)
+        draftsim_database_card = Draftsim_Card(Rank=card_rank, Name=card_name, Set=set_name, WeighedRating=weighed_rating)
         input_database_session.add(draftsim_database_card)
         try:
             input_database_session.commit()
@@ -81,13 +82,21 @@ database_session = Session()
 
 draftsim = Draftsim_Scraper()
 # Get the different pages for sets
-#draftsim.gather_dic_from_site("https://draftsim.com/STX-pick-order.php")
-draftsim.gather_dic_from_site("https://draftsim.com/KHM-pick-order.php")
+draftsim.gather_dic_from_site("https://draftsim.com/STX-pick-order.php")
+#draftsim.gather_dic_from_site("https://draftsim.com/KHM-pick-order.php")
 
 cards = draftsim.get_card_dic()
 
+weight = 1 / len(cards)
+
 for card in cards:
     name = cards.get(card)
-    draftsim.add_to_database(database_session, card, name, "Kaldheim")
+    if int(card) == 1:
+        weighted_card_rank = 1
+    elif int(card) == len(cards):
+        weighted_card_rank = 0
+    else:
+        weighted_card_rank = (len(cards) - int(card)) * weight
+    draftsim.add_to_database(database_session, card, name, "Strixhaven", weighted_card_rank)
 
 database_session.close()
