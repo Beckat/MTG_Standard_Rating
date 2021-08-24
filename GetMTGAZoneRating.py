@@ -50,6 +50,14 @@ card_ranks_split = card_ranks_text.split('\n')
 
 print(card_ranks_text)
 
+
+for card in card_ranks_split:
+    if len(card) > 1:
+        grade = card[-2:].strip()
+        if grade in grade_dict.keys():
+            print(card[:(len(card) - 2)].strip())
+
+
 driver.quit()
 database_session.close()
 # Added grade breakdown in database
