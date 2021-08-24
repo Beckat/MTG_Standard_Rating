@@ -50,11 +50,16 @@ card_ranks_split = card_ranks_text.split('\n')
 
 print(card_ranks_text)
 
+card_grade = ""
+card_weight_rank = 0.0
+card_name = ""
 
 for card in card_ranks_split:
     if len(card) > 1:
-        grade = card[-2:].strip()
-        if grade in grade_dict.keys():
+        card_grade = card[-2:].strip()
+        if card_grade in grade_dict.keys():
+            card_weight_rank = grade_dict[card_grade]["WeightedRank"]
+            card_name = card[:(len(card) - 2)].strip()
             print(card[:(len(card) - 2)].strip())
 
 
