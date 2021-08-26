@@ -62,12 +62,15 @@ card_weight_rank = 0.0
 card_name = ""
 
 for card in card_ranks_split:
+    # We can't check if the last two characters are a grade if the string is length 1 or 0
     if len(card) > 1:
         card_grade = card[-2:].strip()
+        # Check if the stripped last two characters match one of the grades
         if card_grade in grade_dict.keys():
             card_weight_rank = grade_dict[card_grade]["WeightedRating"]
             card_name = card[:(len(card) - 2)].strip()
-            print(card[:(len(card) - 2)].strip())
+
+            # Set the values to add to the database
             database_card = Database_Card(Grade=card_grade, Name=card_name, Set="Strixhaven",
                                                    WeightedRating=card_weight_rank)
             database_session.add(database_card)
@@ -81,4 +84,3 @@ for card in card_ranks_split:
 
 driver.quit()
 database_session.close()
-# Added grade breakdown in database
