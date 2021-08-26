@@ -10,7 +10,7 @@ import sqlalchemy as sqlal
 from sqlalchemy.orm import sessionmaker
 import Env
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, REAL
 from sqlalchemy.exc import IntegrityError
 import time
 from selenium import webdriver
@@ -23,6 +23,13 @@ import  pandas as pd
 
 
 Base = declarative_base()
+
+class Database_Card(Base):
+    __tablename__ = 'MTGAZoneRatings'
+    Name = Column(String, primary_key=True)
+    Set = Column(String, primary_key=True)
+    Grade = Column(String)
+    WeightedRating = Column(REAL)
 
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
@@ -58,9 +65,18 @@ for card in card_ranks_split:
     if len(card) > 1:
         card_grade = card[-2:].strip()
         if card_grade in grade_dict.keys():
-            card_weight_rank = grade_dict[card_grade]["WeightedRank"]
+            card_weight_rank = grade_dict[card_grade]["WeightedRating"]
             card_name = card[:(len(card) - 2)].strip()
             print(card[:(len(card) - 2)].strip())
+            database_card = Database_Card(Grade=card_grade, Name=card_name, Set="Strixhaven",
+                                                   WeightedRating=card_weight_rank)
+            database_session.add(database_card)
+            try:
+                database_session.commit()
+            # Error if the insert would cause an integrety error in the database such as duplicate primary key value
+            except IntegrityError:
+                database_session.rollback()
+
 
 
 driver.quit()

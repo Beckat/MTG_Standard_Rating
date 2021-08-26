@@ -22,7 +22,7 @@ class Draftsim_Card(Base):
     Rank = Column(Integer, primary_key=True)
     Name = Column(String, primary_key=True)
     Set = Column(String, primary_key=True)
-    WeighedRating = Column(REAL)
+    WeightedRating = Column(REAL)
 
 class Draftsim_Scraper:
     def __init__(self):
@@ -63,7 +63,7 @@ class Draftsim_Scraper:
 
     def add_to_database(self, input_database_session, card_rank, card_name, set_name, weighed_rating):
         # Creates the object to be added to the database
-        draftsim_database_card = Draftsim_Card(Rank=card_rank, Name=card_name, Set=set_name, WeighedRating=weighed_rating)
+        draftsim_database_card = Draftsim_Card(Rank=card_rank, Name=card_name, Set=set_name, WeightedRating=weighed_rating)
         input_database_session.add(draftsim_database_card)
         try:
             input_database_session.commit()
