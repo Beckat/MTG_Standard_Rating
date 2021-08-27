@@ -31,11 +31,14 @@ class Database_Card(Base):
     Grade = Column(String)
     WeightedRating = Column(REAL)
 
+
+# Holds the database connection information
 Environment = Env.Environment()
 engine = Environment.get_database_engine()
 Session = sessionmaker(bind=engine)
 database_session = Session()
 
+# Gets the grades F-A+ and their weight 0-1.0
 grade_table_df = pd.read_sql_table(
     "GradeSystemWeight",
     con=engine
@@ -46,6 +49,7 @@ trans_df = grade_table_df.set_index("Grade").T
 
 grade_dict = trans_df.to_dict()
 
+# Uses selenium to open the web page to scrape ratings
 driver = webdriver.Chrome()
 driver.get("https://mtgazone.com/strixhaven-school-of-mages-stx-limited-tier-list/")
 card_ranks_page = driver.find_elements(By.CLASS_NAME, 'wp-block-columns')
