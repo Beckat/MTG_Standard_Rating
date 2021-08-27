@@ -45,6 +45,43 @@ grade_table_df = pd.read_sql_table(
 )
 
 
+class MTGAZone_Scraper:
+    def __init__(self):
+        self.card_rank_dic = {}
+
+    def gather_dic_from_site(self, input_web_address):
+        driver = webdriver.Chrome()
+        try:
+            driver.get(input_web_address)
+            card_ranks_page = driver.find_elements(By.CLASS_NAME, 'wp-block-columns')
+            card_ranks_text = card_ranks_page[0].text
+            card_ranks_split = card_ranks_text.split('\n')
+            card_rank_dic = {}
+
+            # Remove any extra new lines
+            # Split by the '.' such as 1. Card_Name
+            for x in range(len(card_ranks_split)):
+                card_ranks_split[x] = card_ranks_split[x].replace('\n', '')
+                card_rank_number_and_name = card_ranks_split[x].split('. ')
+                self.card_rank_dic[card_rank_number_and_name[0].strip()] = card_rank_number_and_name[1].strip()
+        finally:
+            driver.quit()
+
+    def add_to_database(self, input_database_session, card_grade, card_name, set_name, weighed_rating):
+        # Creates the object to be added to the database
+        database_card = Database_Card(Grade=card_grade, Name=card_name, Set=set_name,
+                                                   WeightedRating=weighed_rating)
+        input_database_session.add(database_card)
+        try:
+            input_database_session.commit()
+        # Error if the insert would cause an integrety error in the database such as duplicate primary key value
+        except IntegrityError:
+            input_database_session.rollback()
+
+    def get_card_dic(self):
+        return self.card_rank_dic
+
+
 trans_df = grade_table_df.set_index("Grade").T
 
 grade_dict = trans_df.to_dict()
