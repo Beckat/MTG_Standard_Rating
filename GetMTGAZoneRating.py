@@ -86,9 +86,11 @@ trans_df = grade_table_df.set_index("Grade").T
 
 grade_dict = trans_df.to_dict()
 
+mtga_zone = MTGAZone_Scraper()
+
 # Uses selenium to open the web page to scrape ratings
 driver = webdriver.Chrome()
-driver.get("https://mtgazone.com/strixhaven-school-of-mages-stx-limited-tier-list/")
+driver.get("https://mtgazone.com/kaldheim-khm-limited-tier-list/")
 card_ranks_page = driver.find_elements(By.CLASS_NAME, 'wp-block-columns')
 card_ranks_text = card_ranks_page[0].text
 card_ranks_split = card_ranks_text.split('\n')
@@ -112,6 +114,8 @@ for card in card_ranks_split:
             card_name = card[:(len(card) - 2)].strip()
 
             # Set the values to add to the database
+            mtga_zone.add_to_database(database_session, card_grade, card_name, "Kaldheim", card_weight_rank)
+            ''''
             database_card = Database_Card(Grade=card_grade, Name=card_name, Set="Strixhaven",
                                                    WeightedRating=card_weight_rank)
             database_session.add(database_card)
@@ -120,6 +124,7 @@ for card in card_ranks_split:
             # Error if the insert would cause an integrety error in the database such as duplicate primary key value
             except IntegrityError:
                 database_session.rollback()
+            '''
 
 
 
