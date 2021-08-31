@@ -110,8 +110,11 @@ for card in card_ranks_split:
         card_grade = card[-2:].strip()
         # Check if the stripped last two characters match one of the grades
         if card_grade in grade_dict.keys():
+            # Will need to get the Drifter review
             card_weight_rank = grade_dict[card_grade]["WeightedRating"]
             card_name = card[:(len(card) - 2)].strip()
+
+            # Will need to check if there is still a grade at the end
 
             # Set the values to add to the database
             mtga_zone.add_to_database(database_session, card_grade, card_name, "Kaldheim", card_weight_rank)
