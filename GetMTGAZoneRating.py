@@ -111,8 +111,15 @@ for card in card_ranks_split:
         # Check if the stripped last two characters match one of the grades
         if card_grade in grade_dict.keys():
             # Will need to get the Drifter review
-            card_weight_rank = grade_dict[card_grade]["WeightedRating"]
             card_name = card[:(len(card) - 2)].strip()
+
+            # If there are two columns of grades we want the first
+            if card_name[-2:].strip() in grade_dict.keys():
+                card_grade = card_name[-2:].strip()
+                card_name = card_name[:(len(card_name) - 2)].strip()
+
+            card_weight_rank = grade_dict[card_grade]["WeightedRating"]
+
 
             # Will need to check if there is still a grade at the end
 
