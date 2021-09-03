@@ -49,6 +49,9 @@ class MTGAZone_Scraper:
     def __init__(self):
         self.card_rank_dic = {}
         self.card_split = []
+        self.card_grade = 0.0
+        self.card_name = ""
+        self.set_name = ""
 
     def gather_dic_from_site(self, input_web_address):
         driver = webdriver.Chrome()
