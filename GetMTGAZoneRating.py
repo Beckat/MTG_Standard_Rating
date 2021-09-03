@@ -48,6 +48,7 @@ grade_table_df = pd.read_sql_table(
 class MTGAZone_Scraper:
     def __init__(self):
         self.card_rank_dic = {}
+        self.card_split = []
 
     def gather_dic_from_site(self, input_web_address):
         driver = webdriver.Chrome()
@@ -56,6 +57,7 @@ class MTGAZone_Scraper:
             card_ranks_page = driver.find_elements(By.CLASS_NAME, 'wp-block-columns')
             card_ranks_text = card_ranks_page[0].text
             card_ranks_split = card_ranks_text.split('\n')
+            self.card_split = card_ranks_text.split('\n')
             card_rank_dic = {}
 
             # Remove any extra new lines
