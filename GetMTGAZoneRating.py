@@ -53,7 +53,7 @@ class MTGAZone_Scraper:
         self.card_name = ""
         self.set_name = ""
 
-    def gather_dic_from_site(self, input_web_address):
+    def gather_dic_from_site(self, input_web_address, set_name):
         driver = webdriver.Chrome()
         try:
             driver.get(input_web_address)
@@ -61,6 +61,7 @@ class MTGAZone_Scraper:
             card_ranks_text = card_ranks_page[0].text
             card_ranks_split = card_ranks_text.split('\n')
             self.card_split = card_ranks_text.split('\n')
+            self.set_name = set_name
             card_rank_dic = {}
 
             for card in card_ranks_split:
@@ -78,7 +79,7 @@ class MTGAZone_Scraper:
                             card_name = card_name[:(len(card_name) - 2)].strip()
 
                         card_weight_rank = grade_dict[card_grade]["WeightedRating"]
-                        self.card_rank_dic[card_name] = card_grade, card_weight_rank
+                        self.card_rank_dic[card_name] = card_grade, card_weight_rank, self.set_name
 
             # Remove any extra new lines
             # Split by the '.' such as 1. Card_Name
@@ -110,14 +111,16 @@ grade_dict = trans_df.to_dict()
 
 mtga_zone = MTGAZone_Scraper()
 
-mtga_zone.gather_dic_from_site("https://mtgazone.com/kaldheim-khm-limited-tier-list/")
+mtga_zone.gather_dic_from_site("https://mtgazone.com/zendikar-rising-znr-limited-tier-list/", "Zendikar Rising")
 
 card_ranks_split = mtga_zone.get_card_dic()
 
-for value in card_ranks_split:
-    test = value
-    test1 = card_ranks_split[value][0]
-    test2 = card_ranks_split[value][1]
+for card in card_ranks_split:
+    test = card_ranks_split[card][1]
+    test1 = card
+    test2 = card_ranks_split[card][0]
+    test3 = card_ranks_split[card][2]
+    mtga_zone.add_to_database(database_session, card_ranks_split[card][0], card, card_ranks_split[card][2], card_ranks_split[card][1])
 
 # Uses selenium to open the web page to scrape ratings
 #driver = webdriver.Chrome()
@@ -128,7 +131,7 @@ for value in card_ranks_split:
 
 # Check the last two characters against our ratings A+, A, A-, etc... and if it matches remove the last two characters
 # Trim the results and set naem as the remainder and the score as what was there
-
+'''
 card_grade = ""
 card_weight_rank = 0.0
 card_name = ""
@@ -154,7 +157,7 @@ for card in card_ranks_split:
 
             # Set the values to add to the database
             mtga_zone.add_to_database(database_session, card_grade, card_name, "Kaldheim", card_weight_rank)
-            ''''
+
             database_card = Database_Card(Grade=card_grade, Name=card_name, Set="Strixhaven",
                                                    WeightedRating=card_weight_rank)
             database_session.add(database_card)
