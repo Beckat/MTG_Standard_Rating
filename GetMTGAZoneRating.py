@@ -116,55 +116,6 @@ mtga_zone.gather_dic_from_site("https://mtgazone.com/zendikar-rising-znr-limited
 card_ranks_split = mtga_zone.get_card_dic()
 
 for card in card_ranks_split:
-    test = card_ranks_split[card][1]
-    test1 = card
-    test2 = card_ranks_split[card][0]
-    test3 = card_ranks_split[card][2]
     mtga_zone.add_to_database(database_session, card_ranks_split[card][0], card, card_ranks_split[card][2], card_ranks_split[card][1])
 
-# Uses selenium to open the web page to scrape ratings
-#driver = webdriver.Chrome()
-#driver.get("https://mtgazone.com/kaldheim-khm-limited-tier-list/")
-#card_ranks_page = driver.find_elements(By.CLASS_NAME, 'wp-block-columns')
-#card_ranks_text = card_ranks_page[0].text
-#card_ranks_split = card_ranks_text.split('\n')
-
-# Check the last two characters against our ratings A+, A, A-, etc... and if it matches remove the last two characters
-# Trim the results and set naem as the remainder and the score as what was there
-'''
-card_grade = ""
-card_weight_rank = 0.0
-card_name = ""
-
-for card in card_ranks_split:
-    # We can't check if the last two characters are a grade if the string is length 1 or 0
-    if len(card) > 1:
-        card_grade = card[-2:].strip()
-        # Check if the stripped last two characters match one of the grades
-        if card_grade in grade_dict.keys():
-            # Will need to get the Drifter review
-            card_name = card[:(len(card) - 2)].strip()
-
-            # If there are two columns of grades we want the first
-            if card_name[-2:].strip() in grade_dict.keys():
-                card_grade = card_name[-2:].strip()
-                card_name = card_name[:(len(card_name) - 2)].strip()
-
-            card_weight_rank = grade_dict[card_grade]["WeightedRating"]
-
-
-            # Will need to check if there is still a grade at the end
-
-            # Set the values to add to the database
-            mtga_zone.add_to_database(database_session, card_grade, card_name, "Kaldheim", card_weight_rank)
-
-            database_card = Database_Card(Grade=card_grade, Name=card_name, Set="Strixhaven",
-                                                   WeightedRating=card_weight_rank)
-            database_session.add(database_card)
-            try:
-                database_session.commit()
-            # Error if the insert would cause an integrety error in the database such as duplicate primary key value
-            except IntegrityError:
-                database_session.rollback()
-            '''
 database_session.close()
